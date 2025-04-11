@@ -1,11 +1,11 @@
 package com.example
 
 import io.ktor.server.application.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import java.time.Duration
+import io.opentelemetry.api.trace.Span
+import org.slf4j.LoggerFactory
 import kotlin.time.Duration.Companion.seconds
 
 fun Application.configureSockets() {
@@ -15,8 +15,14 @@ fun Application.configureSockets() {
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
+
     routing {
-        webSocket("/ws") { // websocketSession
+        webSocket("/ws") {
+            val logger = LoggerFactory.getLogger("websocket")
+            val ctx = Span.current().spanContext
+
+            logger.info("Within websocket handler: ${ctx.traceId}")
+
             for (frame in incoming) {
                 if (frame is Frame.Text) {
                     val text = frame.readText()

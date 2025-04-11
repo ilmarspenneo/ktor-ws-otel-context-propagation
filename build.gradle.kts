@@ -25,6 +25,13 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.ktor.server.config.yaml)
 
+    implementation(libs.opentelemetry.ktor)
+    implementation(libs.opentelemetry.sdk.extension.autoconfigure)
+    implementation(libs.opentelemetry.instrumentation.annotations)
+    implementation(libs.opentelemetry.instrumentation.logback.mdc)
+    implementation(libs.opentelemetry.exporter.logging)
+    implementation(libs.opentelemetry.exporter.otlp)
+
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
 }
