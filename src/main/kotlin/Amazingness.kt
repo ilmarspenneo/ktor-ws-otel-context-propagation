@@ -1,8 +1,14 @@
 package com.example
 
+import io.ktor.server.routing.Route
+import io.ktor.server.websocket.DefaultWebSocketServerSession
+import io.ktor.server.websocket.webSocket
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.StatusCode
+import io.opentelemetry.extension.kotlin.asContextElement
+import io.opentelemetry.extension.kotlin.getOpenTelemetryContext
+import kotlinx.coroutines.withContext
 
 inline fun <Result> withSpan(
     name: String = getDefaultSpanName(),
@@ -54,3 +60,14 @@ inline fun getDefaultSpanName(): String {
 
     return "$simpleClassName.$methodName"
 }
+
+fun Route.webSocketWithOtel(path: String, handler: suspend DefaultWebSocketServerSession.() -> Unit) {
+    webSocket(path) {
+        val otelContext = call.coroutineContext.getOpenTelemetryContext()
+
+        withContext(coroutineContext + otelContext.asContextElement()) {
+            handler()
+        }
+    }
+}
+
