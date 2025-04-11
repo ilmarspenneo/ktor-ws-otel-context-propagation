@@ -27,6 +27,7 @@ dependencies {
 
     implementation(libs.opentelemetry.ktor)
     implementation(libs.opentelemetry.sdk.extension.autoconfigure)
+    implementation(libs.opentelemetry.extension.kotlin)
     implementation(libs.opentelemetry.instrumentation.annotations)
     implementation(libs.opentelemetry.instrumentation.logback.mdc)
     implementation(libs.opentelemetry.exporter.logging)
