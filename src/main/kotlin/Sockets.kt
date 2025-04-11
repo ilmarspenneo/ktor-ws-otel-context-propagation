@@ -10,7 +10,7 @@ import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import kotlin.time.Duration.Companion.seconds
 
-suspend fun doSomething() = withSpan("doing something...") {
+suspend fun doSomething() = withSpanSuspend {
     val logger = LoggerFactory.getLogger("dosomething")
     val ctx = Span.current().spanContext
     logger.info("Within something: ${ctx.traceId} ${ctx.spanId} ${ctx.traceState}")
@@ -18,7 +18,7 @@ suspend fun doSomething() = withSpan("doing something...") {
     moreStuff()
 }
 
-suspend fun moreStuff() = withSpan("more stuff...") {
+suspend fun moreStuff() = withSpanSuspend {
     val logger = LoggerFactory.getLogger("dosomething")
     val ctx = Span.current().spanContext
     logger.info("Within something: ${ctx.traceId} ${ctx.spanId} ${ctx.traceState}")
@@ -35,12 +35,7 @@ fun Application.configureSockets() {
 
     routing {
         webSocket("/ws") {
-            val otelCtx = call.coroutineContext.getOpenTelemetryContext()
-            val logger = LoggerFactory.getLogger("dosomething")
-
-            otelCtx.makeCurrent().use {
-                logger.warn("initial: ${Span.current().spanContext.traceId}")
-
+            call.coroutineContext.getOpenTelemetryContext().makeCurrent().use {
                 outgoing.send(Frame.Text("Hello ${Span.current().spanContext.traceId}"))
 
                 for (frame in incoming) {
